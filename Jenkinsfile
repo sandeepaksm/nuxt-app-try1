@@ -1,67 +1,33 @@
 pipeline {
     agent any
 
-    tools {
-        // This MUST match the name you give in 'Global Tool Configuration'
-        nodejs 'node' 
-    }
-
-    environment {
-        // Ensures pnpm and nuxt run in non-interactive mode
-        CI = 'true'
-    }
-
     stages {
-        stage('Cleanup Workspace') {
+        stage('Environment Setup') {
             steps {
-                cleanWs()
-                echo 'Workspace cleaned.'
+                echo 'Checking Environment...'
+                // Instead of using 'tools', we check manually to avoid the NullPointer
+                sh 'node -v || echo "Node not found"'
             }
         }
 
-        stage('Checkout Source') {
+        stage('Install pnpm') {
             steps {
-                // Pulls code from your GitHub repository
-                checkout scm
+                // Using standard shell to install pnpm
+                sh 'npm install -g pnpm || true'
             }
         }
 
-        stage('Install pnpm & Dependencies') {
+        stage('Build') {
             steps {
-                script {
-                    echo 'Installing pnpm and project dependencies...'
-                    // Ensure pnpm is available on the Jenkins agent
-                    sh 'npm install -g pnpm'
-                    sh 'pnpm install'
-                }
-            }
-        }
-
-        stage('Build Nuxt Application') {
-            steps {
-                echo 'Running Nuxt Build...'
+                sh 'pnpm install'
                 sh 'pnpm run build'
             }
         }
-
-        stage('Archive Artifacts') {
-            steps {
-                // Archive the production build (usually the .output folder in Nuxt 3)
-                archiveArtifacts artifacts: '.output/**', allowEmptyArchive: true
-                echo 'Build artifacts have been saved.'
-            }
-        }
     }
-
+    
     post {
-        success {
-            echo 'SUCCESS: The Nuxt application was built successfully!'
-        }
-        failure {
-            echo 'FAILURE: The build failed. Check the console output for errors.'
-        }
         always {
-            echo 'Pipeline execution finished.'
+            echo 'Finished Nuxt Build Attempt'
         }
     }
 }
