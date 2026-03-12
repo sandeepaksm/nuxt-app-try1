@@ -16,13 +16,12 @@ pipeline {
             }
         }
 
-        stage('Setup pnpm') {
+
+	stage('Install pnpm') {
             steps {
-                echo 'Activating pnpm via Corepack...'
-                // Corepack comes with Node 22 and is the recommended way to use pnpm
-                sh 'corepack enable'
-                sh 'corepack prepare pnpm@latest --activate'
-                
+                echo 'Installing pnpm via npm (Bypassing Corepack)...'
+                // This is the most stable way in Jenkins
+                sh 'npm install -g pnpm'
                 sh 'pnpm -v'
             }
         }
