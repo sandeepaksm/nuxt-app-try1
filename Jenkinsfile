@@ -1,33 +1,39 @@
 pipeline {
     agent any
 
+    tools {
+        // This MUST match the 'Name' field in your Global Tool Configuration
+        nodejs 'node' 
+    }
+
     stages {
-        stage('Environment Setup') {
+        stage('Verify Tools') {
             steps {
-                echo 'Checking Environment...'
-                // Instead of using 'tools', we check manually to avoid the NullPointer
-                sh 'node -v || echo "Node not found"'
+                echo 'Checking Node and NPM versions...'
+                sh 'node -v'
+                sh 'npm -v'
             }
         }
 
         stage('Install pnpm') {
             steps {
-                // Using standard shell to install pnpm
-                sh 'npm install -g pnpm || true'
+                echo 'Installing pnpm globally...'
+                sh 'npm install -g pnpm'
             }
         }
 
-        stage('Build') {
+        stage('Build Nuxt App') {
             steps {
+                echo 'Installing dependencies and building...'
                 sh 'pnpm install'
                 sh 'pnpm run build'
             }
         }
     }
-    
+
     post {
         always {
-            echo 'Finished Nuxt Build Attempt'
+            echo 'Nuxt Build Attempt Finished.'
         }
     }
 }
