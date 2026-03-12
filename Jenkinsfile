@@ -32,6 +32,13 @@ pipeline {
                 sh 'pnpm install --no-optional --ignore-scripts'
             }
         }
+        stage('Build Nuxt') {
+            steps {
+                echo 'Starting Production Build...'
+                // Generates the .output folder for deployment
+                sh 'pnpm run build'
+            }
+        }
 
     }
 }
