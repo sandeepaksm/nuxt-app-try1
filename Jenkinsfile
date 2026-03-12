@@ -2,57 +2,66 @@ pipeline {
     agent any
 
     tools {
-        // Make sure 'node' is configured in Jenkins Global Tool Configuration
+        // This MUST match the name you give in 'Global Tool Configuration'
         nodejs 'node' 
     }
 
     environment {
-        // CI environment variable to ensure non-interactive builds
+        // Ensures pnpm and nuxt run in non-interactive mode
         CI = 'true'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Cleanup Workspace') {
+            steps {
+                cleanWs()
+                echo 'Workspace cleaned.'
+            }
+        }
+
+        stage('Checkout Source') {
             steps {
                 // Pulls code from your GitHub repository
                 checkout scm
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install pnpm & Dependencies') {
             steps {
-                echo 'Installing dependencies using pnpm...'
-                // Using pnpm as seen in your project structure
-                sh 'npm install -g pnpm'
-                sh 'pnpm install'
+                script {
+                    echo 'Installing pnpm and project dependencies...'
+                    // Ensure pnpm is available on the Jenkins agent
+                    sh 'npm install -g pnpm'
+                    sh 'pnpm install'
+                }
             }
         }
 
-        stage('Build Nuxt App') {
+        stage('Build Nuxt Application') {
             steps {
-                echo 'Building the Nuxt.js application...'
+                echo 'Running Nuxt Build...'
                 sh 'pnpm run build'
             }
         }
 
         stage('Archive Artifacts') {
             steps {
-                // Archive the output folder (usually .output or dist)
-                archiveArtifacts artifacts: '.output/**', fingerprint: true
-                echo 'Build complete and artifacts archived.'
+                // Archive the production build (usually the .output folder in Nuxt 3)
+                archiveArtifacts artifacts: '.output/**', allowEmptyArchive: true
+                echo 'Build artifacts have been saved.'
             }
         }
     }
 
     post {
-        always {
-            cleanWs() // Clean workspace after build
-        }
         success {
-            echo 'Build Successful!'
+            echo 'SUCCESS: The Nuxt application was built successfully!'
         }
         failure {
-            echo 'Build Failed. Please check logs.'
+            echo 'FAILURE: The build failed. Check the console output for errors.'
+        }
+        always {
+            echo 'Pipeline execution finished.'
         }
     }
 }
