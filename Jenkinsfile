@@ -29,7 +29,7 @@ pipeline {
             steps {
                 echo 'Installing Nuxt project dependencies...'
                 // This looks for your package.json and pnpm-lock.yaml
-                sh 'pnpm install'
+                sh 'pnpm install --no-optional --ignore-scripts'
             }
         }
 
