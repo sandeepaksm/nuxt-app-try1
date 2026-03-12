@@ -25,6 +25,13 @@ pipeline {
                 sh 'pnpm -v'
             }
         }
+        stage('Project Dependencies') {
+            steps {
+                echo 'Installing Nuxt project dependencies...'
+                // This looks for your package.json and pnpm-lock.yaml
+                sh 'pnpm install'
+            }
+        }
 
     }
 }
