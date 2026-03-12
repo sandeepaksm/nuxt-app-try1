@@ -15,5 +15,17 @@ pipeline {
                 sh 'npm -v'
             }
         }
+
+        stage('Setup pnpm') {
+            steps {
+                echo 'Activating pnpm via Corepack...'
+                // Corepack comes with Node 22 and is the recommended way to use pnpm
+                sh 'corepack enable'
+                sh 'corepack prepare pnpm@latest --activate'
+                
+                sh 'pnpm -v'
+            }
+        }
+
     }
 }
